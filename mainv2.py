@@ -1,8 +1,11 @@
 import tkinter as tk
 import pyautogui as pg
+from pynput import keyboard
+from pynput.keyboard import Key, Listener
 import time
 import random
-
+import json
+import keyboard
 
 def toggle_cell(row, col):
     global start_row, start_col, end_row, end_col
@@ -93,6 +96,30 @@ def clear():
             canvas.itemconfig(cells[i][l], fill='white')
 
 
+def save_preset():
+    save_grid = grid
+    with open("data.txt") as f:
+        data = f.read()
+    data = json.loads(data)
+    data["preset1"] = save_grid
+    with open("data.txt", "w") as txt_file:
+        json.dump(data, txt_file)
+
+
+def load_preset():
+    with open("data.txt") as f:
+        data = f.read()
+    data = json.loads(data)
+    loaded_data = data["preset1"]
+    for row in range(rows):
+        for col in range(cols):
+            if loaded_data[row][col] == 1:
+                grid[row][col] = 1
+                canvas.itemconfig(cells[row][col], fill='black')
+
+def on_press(key):
+    print(key)
+
 rows = 5
 cols = 12
 cell_size = 53
@@ -117,11 +144,23 @@ create_grid(rows, cols, cell_size)
 
 root.bind('<Shift_L>', on_shift_press)
 root.bind('<KeyRelease-Shift_L>', on_shift_release)
+keyboard.add_hotkey("F4",depot)
 
+# buttons
 ok_button = tk.Button(root, text="OK", command=depot)
-ok_button.pack(side="left", anchor="n", expand=True)
+ok_button.pack(side="left", anchor="n", expand=True, fill="x")
+
 clear_button = tk.Button(root, text="CLEAR", command=clear)
-clear_button.pack(side="left", anchor="n", expand=True)
+clear_button.pack(side="left", anchor="n", expand=True, fill="x")
+
 dump_onetab_button = tk.Button(root, text="DUMP", command=dump)
-dump_onetab_button.pack(side="left", anchor="n", expand=True)
+dump_onetab_button.pack(side="left", anchor="n", expand=True, fill="x")
+
+save_preset_button = tk.Button(root, text="SAVE PRESET", command=save_preset)
+save_preset_button.pack(side="left", anchor="n", expand=True, fill="x")
+
+load_preset_button = tk.Button(root, text="LOAD PRESET", command=load_preset)
+load_preset_button.pack(side="left", anchor="n", expand=True, fill="x")
+
+
 root.mainloop()
